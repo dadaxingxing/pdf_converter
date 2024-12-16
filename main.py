@@ -61,7 +61,7 @@ class MyGUI:
             self.log_message(f'Converting .docx from {in_dir}')
             self.log_message(f'into .pdf from {out_dir}')
             self.log_message('...')
-            sys.stderr.write = lambda message: self.log_message(message.strip())
+            sys.stderr = open("consoleoutput.log", "w")
             convert(in_dir, out_dir)
             self.log_message('Conversion complete!')
         except Exception as e:
