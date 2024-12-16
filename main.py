@@ -1,9 +1,7 @@
 from docx2pdf import convert
 import tkinter as tk
 from tkinter import filedialog
-import os
-from time import sleep
-
+import sys
 
 class MyGUI:
     def __init__(self):
@@ -63,7 +61,7 @@ class MyGUI:
             self.log_message(f'Converting .docx from {in_dir}')
             self.log_message(f'into .pdf from {out_dir}')
             self.log_message('...')
-            sleep(2)
+            sys.stderr.write = lambda message: self.log_message(message.strip())
             convert(in_dir, out_dir)
             self.log_message('Conversion complete!')
         except Exception as e:
@@ -71,8 +69,7 @@ class MyGUI:
 
     def select_file(self, file_path_var):
         """Open a directory selection dialog and set the path to StringVar."""
-        cur_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = filedialog.askdirectory(title='Select a Folder', initialdir=cur_dir)
+        file_path = filedialog.askdirectory(title='Select a Folder')
 
         if file_path:
             file_path_var.set(file_path)
