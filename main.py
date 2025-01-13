@@ -1,14 +1,19 @@
-from docx2pdf import convert
 import tkinter as tk
 from tkinter import filedialog
 import sys
+import os 
+import comtypes.client
+from docx import Document
+from time import sleep
+import gc
+
 
 class MyGUI:
     def __init__(self):
         # Setup window
         self.window = tk.Tk()
         self.window.geometry("500x300")
-        self.window.title("Mass Convert .docx to .pdf")
+        self.window.title("Mass Convert .docx & .doc to .pdf")
 
         # Input folder path
         self.inputPath = tk.StringVar()
@@ -43,6 +48,42 @@ class MyGUI:
         # Start the window
         self.window.mainloop()
 
+    def convert_input_folder(self, in_dir, out_dir):
+        """Convert all .doc files into .docx"""
+        if not os.path.exists(in_dir) or not os.path.exists(out_dir):
+            self.log_message(f'Input Folder: {in_dir} or {out_dir} does not exist')
+            return
+        
+        word = None
+        try:
+            # Create the Word application instance once
+            word = comtypes.client.CreateObject('word.application')
+
+            for filename in os.listdir(in_dir):
+                input_file = os.path.join(in_dir, filename)
+                output_file = os.path.join(out_dir, filename)
+                
+                if filename.endswith('.doc') or filename.endswith('.docx'):
+                    try:
+                        output_file = os.path.splitext(output_file)[0] + '.pdf'
+                        doc = word.Documents.Open(input_file)
+                        doc.SaveAs(output_file, FileFormat=17)  # FileFormat 17 for PDF
+                        doc.Close()
+                        
+                        sleep(1)
+                    except Exception as doc_err:
+                        self.log_message(f"Error processing file {filename}: {doc_err}")
+        except Exception as e:
+            self.log_message(f"Error during Word application initialization or processing: {e}")
+        finally:
+            if word:
+                try:
+                    word.Quit()  # Ensure Word quits cleanly
+                    del word
+                    gc.collect()
+                except Exception as quit_err:
+                    self.log_message(f"Error while closing Word application: {quit_err}")
+
     def log_message(self, message):
         """Log message to the text widget."""
         self.log.insert(tk.END, message + '\n')
@@ -57,13 +98,16 @@ class MyGUI:
             self.log_message('Please select a directory for both folders.')
             return
 
-        try: 
+        try:
+            self.log_message('...')
             self.log_message(f'Converting .docx from {in_dir}')
             self.log_message(f'into .pdf from {out_dir}')
             self.log_message('...')
             sys.stderr = open("consoleoutput.log", "w")
-            convert(in_dir, out_dir)
+
+            self.convert_input_folder(in_dir, out_dir)
             self.log_message('Conversion complete!')
+            self.log_message('--------------------')
         except Exception as e:
             self.log_message(f'An error occurred during conversion: {e}')
 
@@ -72,7 +116,9 @@ class MyGUI:
         file_path = filedialog.askdirectory(title='Select a Folder')
 
         if file_path:
+            self.log_message(f'Selected: {file_path}')
             file_path_var.set(file_path)
 
 # Run the GUI application
 MyGUI()
+
