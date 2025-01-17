@@ -6,7 +6,7 @@ import comtypes.client
 from docx import Document
 from time import sleep
 import gc
-
+from threading import Thread
 
 class MyGUI:
     def __init__(self):
@@ -76,6 +76,8 @@ class MyGUI:
                         sleep(1)
                     except Exception as doc_err:
                         self.log_message(f"Error processing file {filename}: {doc_err}")
+            self.log_message('Conversion complete!')
+
         except Exception as e:
             self.log_message(f"Error during Word application initialization or processing: {e}")
         finally:
@@ -86,6 +88,8 @@ class MyGUI:
                     gc.collect()
                 except Exception as quit_err:
                     self.log_message(f"Error while closing Word application: {quit_err}")
+                    
+        self.log_message('--------------------')
 
     def log_message(self, message):
         """Log message to the text widget."""
@@ -108,9 +112,7 @@ class MyGUI:
             self.log_message('...')
             sys.stderr = open("consoleoutput.log", "w")
 
-            self.convert_input_folder(in_dir, out_dir)
-            self.log_message('Conversion complete!')
-            self.log_message('--------------------')
+            Thread(target=self.convert_input_folder, args=(in_dir, out_dir), daemon=True).start()
         except Exception as e:
             self.log_message(f'An error occurred during conversion: {e}')
 
