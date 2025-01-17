@@ -66,6 +66,9 @@ class MyGUI:
                 if filename.endswith('.doc') or filename.endswith('.docx'):
                     try:
                         output_file = os.path.splitext(output_file)[0] + '.pdf'
+                        if os.path.exists(output_file):
+                            os.remove(output_file)
+
                         doc = word.Documents.Open(input_file)
                         doc.SaveAs(output_file, FileFormat=17)  # FileFormat 17 for PDF
                         doc.Close()
