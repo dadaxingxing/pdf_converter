@@ -1,5 +1,5 @@
 Overview:
-A simple tool to batch convert .docx files to .pdf using an easy-to-use interface.
+A simple tool to batch convert .docx & .doc files to .pdf using an easy-to-use interface.
 
 
 Requirements:
@@ -19,3 +19,4 @@ Troubleshooting:
 Ensure Microsoft Word is installed on your computer.
 Verify the folders you select exist and have write permissions.
 Run the program as Administrator if needed.
+Open task manager and close all instances of microsoft word document.
